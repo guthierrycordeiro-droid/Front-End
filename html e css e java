@@ -1003,3 +1003,193 @@ button:active {
 h1 {
     animation: titleGlow 2s infinite alternate;
 }
+
+java 
+
+const player = {
+    x: 1,
+    y: 1,
+
+    dx: 0,
+    dy: 0,
+
+    nextDx: 0,
+    nextDy: 0,
+
+    speed: 100,
+    score: 0,
+    lives: 3
+};
+
+function movePlayer() {
+
+    if (
+        canMove(
+            player.x,
+            player.y,
+            player.nextDx,
+            player.nextDy
+        )
+    ) {
+        player.dx = player.nextDx;
+        player.dy = player.nextDy;
+    }
+
+    if (
+        canMove(
+            player.x,
+            player.y,
+            player.dx,
+            player.dy
+        )
+    ) {
+        player.x += player.dx;
+        player.y += player.dy;
+    }
+
+    collectDot();
+}
+
+document.addEventListener("keydown", event => {
+
+    switch (event.key.toLowerCase()) {
+
+        case "arrowup":
+        case "w":
+            player.nextDx = 0;
+            player.nextDy = -1;
+            break;
+
+        case "arrowdown":
+        case "s":
+            player.nextDx = 0;
+            player.nextDy = 1;
+            break;
+
+        case "arrowleft":
+        case "a":
+            player.nextDx = -1;
+            player.nextDy = 0;
+            break;
+
+        case "arrowright":
+        case "d":
+            player.nextDx = 1;
+            player.nextDy = 0;
+            break;
+    }
+});
+
+const ghosts = [
+    {
+        x: 9,
+        y: 7,
+        color: "red",
+        speed: 150
+    },
+
+    {
+        x: 10,
+        y: 7,
+        color: "pink",
+        speed: 170
+    },
+
+    {
+        x: 9,
+        y: 8,
+        color: "cyan",
+        speed: 190
+    },
+
+    {
+        x: 10,
+        y: 8,
+        color: "orange",
+        speed: 210
+    }
+];
+
+
+function chasePlayer(ghost) {
+
+    const dx = player.x - ghost.x;
+    const dy = player.y - ghost.y;
+
+    if (Math.abs(dx) > Math.abs(dy)) {
+
+        ghost.x += Math.sign(dx);
+
+    } else {
+
+        ghost.y += Math.sign(dy);
+    }
+}
+
+function checkGhostCollision() {
+
+    for (const ghost of ghosts) {
+
+        if (
+            ghost.x === player.x &&
+            ghost.y === player.y
+        ) {
+
+            player.lives--;
+
+            resetPositions();
+
+            if (player.lives <= 0) {
+                gameOver();
+            }
+        }
+    }
+}
+
+let level = 1;
+let score = 0;
+
+function nextLevel() {
+
+    level++;
+
+    player.speed -= 5;
+
+    if (player.speed < 50) {
+        player.speed = 50;
+    }
+
+    resetMap();
+    resetPositions();
+}
+
+let powerMode = false;
+
+function activatePowerMode() {
+
+    powerMode = true;
+
+    setTimeout(() => {
+        powerMode = false;
+    }, 7000);
+}
+
+function eatGhost(ghost) {
+
+    if (!powerMode) {
+        return;
+    }
+
+    score += 200;
+
+    ghost.x = 9;
+    ghost.y = 7;
+}
+
+function addScore(points) {
+
+    score += points;
+
+    document.getElementById("score")
+        .textContent = score;
+}
